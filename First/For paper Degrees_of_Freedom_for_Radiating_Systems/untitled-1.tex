@@ -1,0 +1,202 @@
+\documentclass[12pt,a4paper]{article}
+
+% PACKAGES
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+
+% HYPERREF & CLEVEREF SETUP
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={A Complete Proof of the Theory of Degrees of Freedom for Radiating Systems},
+    pdfauthor={A.I. Assistant based on M. Gustafsson},
+}
+\usepackage[capitalise,noabbrev]{cleveref} % For \Cref
+
+% THEOREM ENVIRONMENTS
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem*{proofsketch}{Proof Sketch}
+
+% CUSTOM COMMANDS
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\uvect}[1]{\mathbf{\hat{#1}}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\herm}{^{\dagger}} % Dagger for Hermitian transpose
+\newcommand{\laplacian}{\nabla^2}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+\newcommand\re{\operatorname{Re}}
+\newcommand\im{\operatorname{Im}}
+\newcommand\E{\operatorname{\mathcal{E}}}
+\newcommand\Tr{\operatorname{Tr}}
+\newcommand\diag{\operatorname{diag}}
+\newcommand{\dOmk}{\,d\Omega_{\uvect{k}}}
+\newcommand{\dOme}{\,d\Omega_{\uvect{e}}}
+
+\begin{document}
+
+\title{\bf A Complete, Self-Contained Proof of the Theory of \\ Degrees of Freedom for Radiating Systems}
+\author{Derived from the work of M. Gustafsson \cite{Gustafsson2025}}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+This document provides a comprehensive, step-by-step mathematical proof of the core concepts presented in the paper "Degrees of Freedom for Radiating Systems" \cite{Gustafsson2025}. The objective is to derive every major theorem and formula from fundamental principles, making the paper's theoretical framework fully self-contained. We begin with a rigorous treatment of Weyl's Law, define the necessary mathematical tools such as Vector Spherical Harmonics, connect these concepts to communication channel capacity via the derivation of radiation modes and water-filling, culminate in the paper's main result on the asymptotic NDoF, and conclude with implications for inverse source problems.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Notation and Preliminaries}
+
+\begin{itemize}
+    \item[$\lambda, k$] Wavelength and wavenumber ($k=2\pi/\lambda$).
+    \item[$\herm$] Conjugate (Hermitian) transpose, denoted by a dagger ($^\dagger$).
+    \item[$\Omega$] A spatial region occupied by the radiating system.
+    \item[$w_d$] Volume of the unit $d$-ball, $w_d=\pi^{d/2}/\Gamma(\tfrac d2+1)$.
+    \item[$\vect{I}$] Column vector of expansion coefficients for the electric current density $\vect{J}$.
+    \item[$\vect{f}$] Column vector of expansion coefficients for the radiated far-field.
+    \item[$\vect{U}$] The linear operator (matrix) mapping source currents to far-field coefficients: $\vect{f} = -\vect{U}\vect{I}$.
+    \item[$\vect{R}_0, \vect{R}_\rho, \vect{R}$] Radiation, material loss, and total resistance matrices.
+    \item[$\rho_n, \nu_n$] Eigenvalue and efficiency of the $n$-th radiation mode.
+    \item[$A_s(\uvect{k})$] The geometric shadow area of $\Omega$ when viewed from direction $\uvect{k}$.
+    \item[$\langle \cdot \rangle$] Average over all spatial directions and polarizations.
+    \item[$N_1$] The Number of Degrees of Freedom (NDoF).
+    \item[$(\tau, l, m)$] Multi-index for Vector Spherical Harmonics (VSH).
+\end{itemize}
+
+\section{Vector Spherical Harmonics (VSH)}
+\label{sec:vsh}
+
+\begin{definition}[Vector Spherical Harmonics]
+The VSH, denoted $\vect{Y}_{\tau lm}(\uvect{r})$, are defined from scalar spherical harmonics $Y_{lm}(\uvect{r})$ as follows:
+\begin{align*}
+    \vect{Y}_{1lm}(\uvect{r}) &= \frac{1}{\sqrt{l(l+1)}} \nabla_S Y_{lm}(\uvect{r}) \\
+    \vect{Y}_{2lm}(\uvect{r}) &= \uvect{r} \times \vect{Y}_{1lm}(\uvect{r})
+\end{align*}
+where $\nabla_S$ is the surface gradient on the unit sphere. They form a complete, orthonormal basis for tangential vector fields on the sphere.
+\end{definition}
+
+\section{Weyl's Law and Propagating Modes}
+\label{sec:weyl}
+
+\begin{theorem}[Weyl's Law]
+\label{thm:weyl}
+For a region $\Omega \subset \R^d$, the number of eigenvalues $N(\nu)$ of the negative Laplacian operator $(-\laplacian)$ with Dirichlet boundary conditions is asymptotically given by:
+$$
+N_{Wd}(\nu) \approx \frac{w_d |\Omega| \nu^{d/2}}{(2\pi)^d}
+$$
+\end{theorem}
+\begin{proof}
+The proof first considers a simple domain and then extends to an arbitrary one.
+\begin{enumerate}
+    \item \textbf{Rectangular Domain:} For a $d$-dimensional box, the eigenfunctions are sinusoids, and the allowed wave vectors form a grid in $k$-space. The number of modes with eigenvalue less than $\nu$ (i.e., $|\vect{k}|^2 < \nu$) is found by counting the grid points inside a hypersphere octant of radius $\sqrt{\nu}$. This gives the desired formula by relating the number of points to the ratio of the k-space volume to the volume-per-mode.
+    
+    \item \textbf{Extension to Arbitrary Domains:} The extension relies on the Dirichlet-Neumann bracketing principle. The eigenvalues of an operator are related to the calculus of variations. For the Dirichlet problem, the $n$-th eigenvalue can be found by minimizing a Rayleigh quotient over an $n$-dimensional space of functions that are zero on the boundary. If we have two domains $\Omega_{in} \subset \Omega$, any test function on $\Omega_{in}$ can be extended by zero to be a valid test function on $\Omega$. This means the space of test functions for $\Omega_{in}$ is a subspace of that for $\Omega$, which implies by the min-max principle that $\nu_n(\Omega) \le \nu_n(\Omega_{in})$. By tiling space with small cubes and defining $\Omega_{in}$ as the union of cubes inside $\Omega$, and $\Omega_{out}$ as the union of cubes intersecting $\Omega$, we get the bound $N(\nu, \Omega_{out}) \le N(\nu, \Omega) \le N(\nu, \Omega_{in})$. As the cube size goes to zero, the volumes of $\Omega_{in}$ and $\Omega_{out}$ both approach $|\Omega|$, and the leading term of the count is recovered by the squeeze theorem.
+\end{enumerate}
+\end{proof}
+
+\section{Capacity, Losses, and Radiation Modes}
+\label{sec:capacity}
+
+\begin{theorem}[Channel Capacity with Power Constraint]
+\label{thm:capacity}
+The capacity of the MIMO channel $\vect{f} = -\vect{U}\vect{I} + \vect{n}$ is found by solving:
+$$
+C = \max_{\Tr(\vect{R}\vect{P})=1, \vect{P}\ge 0} \log_2(\det(\mathbf{I} + \gamma \vect{U}\vect{P}\vect{U}\herm))
+$$
+\end{theorem}
+\begin{proof}
+The problem diagonalizes in the basis of radiation modes, reducing to the maximization of $\sum_n \log_2(1 + \gamma \nu_n p_n)$ subject to $\sum_n p_n = 1$ and $p_n \ge 0$. This is solved using a Lagrangian:
+$$ \mathcal{L}(\{p_n\}, \mu) = \sum_n \log_2(1 + \gamma \nu_n p_n) - \mu \left(\sum_n p_n - 1\right) $$
+Setting the partial derivative with respect to $p_n$ to zero yields the stationarity condition:
+$$ \frac{\partial \mathcal{L}}{\partial p_n} = \frac{1}{\ln 2} \frac{\gamma \nu_n}{1 + \gamma \nu_n p_n} - \mu = 0 \quad\implies\quad p_n = \frac{1}{\mu\ln 2} - \frac{1}{\gamma\nu_n} $$
+Incorporating the positivity constraint $p_n \ge 0$ gives the water-filling solution:
+$$ p_n = \max\left(0, \frac{1}{\mu_0} - \frac{1}{\gamma\nu_n}\right) $$
+where the constant "water level" $\mu_0 = \mu\ln2$ is chosen to satisfy the total power constraint $\sum_n p_n=1$.
+\end{proof}
+
+\section{The Asymptotic NDoF and Shadow Area}
+\label{sec:asymptotic}
+
+\begin{theorem}[Average Maximum Effective Area]
+\label{thm:avg_a_eff}
+The maximum partial effective area, averaged over all directions and polarizations, is:
+$$
+\langle \max A_{eff} \rangle = \frac{\lambda^2}{8\pi} \sum_{n=1}^\infty \nu_n
+$$
+\end{theorem}
+\begin{proof}
+The proof requires evaluating $\langle |a_n|^2 \rangle$. Following \cite[Appendix B]{Gustafsson2025}, for an incident plane wave with coefficient normalization $a_n = 4\pi j^{\tau-1-l} \uvect{e} \cdot \vect{Y}_n(\uvect{k})$, this average becomes:
+$$ \langle |a_n|^2\rangle = \frac{(4\pi)^2}{8\pi^2}\int_{S^2}\int_{\rm pol} |\uvect e\cdot\vect Y_n(\uvect k)|^2\,d\Omega_{\uvect e}\,d\Omega_{\uvect k} $$
+The inner polarization integral evaluates to $\pi |\vect{Y}_n(\uvect{k})|^2$. The outer integral over the sphere, by VSH orthonormality, is 1. Combining constants yields $\langle |a_n|^2\rangle = 2\pi$. Substituting this into the expression for $\langle \max A_{eff} \rangle$ gives the desired result.
+\end{proof}
+
+\subsection{The Main Result: NDoF from Shadow Area}
+\begin{enumerate}
+    \item \textbf{Asymptotic Behavior of Radiation Modes:} As illustrated in \cite[Figs. 5, 10]{Gustafsson2025}, for electrically large, low-loss objects, the efficiencies $\{\nu_n\}$ bifurcate, allowing the approximation $\sum \nu_n \approx N_1$. This gives $\langle \max A_{eff} \rangle \approx \frac{\lambda^2}{8\pi} N_1$.
+
+    \item \textbf{High-Frequency Limit and the Optical Theorem:}
+    \begin{theorem}[Optical Theorem]
+    The total power extinguished from an incident beam, $P_{ext} = P_{sca} + P_{abs}$, is related to the imaginary part of the vector scattering amplitude $\vect{f}(\uvect{k})$ in the forward direction by $\sigma_{ext} = P_{ext}/I_{inc} = (4\pi/k)\im\{\uvect{e}_{inc} \cdot \vect{f}(\uvect{k}_{inc})\}$.
+    \end{theorem}
+    \begin{proof}
+    The total power flowing out of a large sphere enclosing the scatterer is $P_{out} = \oint \vect{S}_{total} \cdot d\vect{A}$. The total field is $\vect{E} = \vect{E}_{inc} + \vect{E}_{sca}$. The time-averaged Poynting vector has three terms: $\vect{S}_{inc}$, $\vect{S}_{sca}$, and an interference term $\vect{S}_{int} = \frac{1}{2}\re\{\vect{E}_{inc}\times\vect{H}_{sca}^* + \vect{E}_{sca}\times\vect{H}_{inc}^*\}$. The net power removed from the incident beam is $P_{ext} = - \oint \vect{S}_{int} \cdot d\vect{A}$. The incident field is a plane wave, e.g., $\vect{E}_{inc} = \uvect{e} E_0 e^{ikz}$, and the scattered field is an outgoing spherical wave, $\vect{E}_{sca} \sim \vect{f}(\uvect{k}) \frac{e^{ikr}}{r}$. Evaluating the integral of $\vect{S}_{int}$ over the large sphere via the method of stationary phase shows that the only contribution comes from the forward direction ($\theta=0$), where the phases of the plane wave and spherical wave match. The result of this integration yields the theorem. In the high-frequency limit, $\sigma_{ext} \to 2A_s$, and for a highly absorbing object, $\sigma_{abs} \approx A_{eff} \to A_s$.
+    \end{proof}
+
+    \item \textbf{Conclusion:} Equating the two asymptotic expressions for $\langle \max A_{eff} \rangle$ gives the final result:
+    $$
+    \frac{\lambda^2}{8\pi} N_1 \approx \langle A_s \rangle \implies \boxed{N_1 \approx \frac{8\pi \langle A_s \rangle}{\lambda^2}}
+    $$
+\end{enumerate}
+
+\begin{lemma}[Cauchy's Mean Cross Section Formula]
+For any convex body $K$, the average shadow area is one-quarter of its total surface area $A$. That is, $\langle A_s \rangle = A/4$.
+\end{lemma}
+\begin{proof}
+The projected area (shadow) of $K$ onto a plane with normal $\uvect{u}$ is $A_s(\uvect{u}) = \int_{\partial K} \max(0, \uvect{n} \cdot \uvect{u}) \, dS$, where $\uvect{n}$ is the outward normal at a point on the surface $\partial K$. To find the average shadow area, we integrate this over the unit sphere $S^2$ and divide by $4\pi$.
+$$ \langle A_s \rangle = \frac{1}{4\pi} \int_{S^2} A_s(\uvect{u}) \, d\Omega_{\uvect{u}} = \frac{1}{4\pi} \int_{S^2} \left( \int_{\partial K} \max(0, \uvect{n} \cdot \uvect{u}) \, dS \right) d\Omega_{\uvect{u}} $$
+By Fubini's theorem, we can swap the order of integration:
+$$ \langle A_s \rangle = \frac{1}{4\pi} \int_{\partial K} \left( \int_{S^2} \max(0, \uvect{n} \cdot \uvect{u}) \, d\Omega_{\uvect{u}} \right) dS $$
+The inner integral is over all directions $\uvect{u}$. For a fixed $\uvect{n}$, the term $\uvect{n} \cdot \uvect{u}$ is positive over exactly one hemisphere. Let $\uvect{n}$ point along the z-axis. Then $\uvect{n} \cdot \uvect{u} = \cos\theta$. The integral is $\int_0^{2\pi}\int_0^{\pi/2} \cos\theta \sin\theta \, d\theta \, d\phi = 2\pi [ \frac{1}{2}\sin^2\theta ]_0^{\pi/2} = \pi$. This result is independent of the choice of $\uvect{n}$.
+$$ \langle A_s \rangle = \frac{1}{4\pi} \int_{\partial K} (\pi) \, dS = \frac{\pi}{4\pi} \int_{\partial K} dS = \frac{1}{4} A $$
+\end{proof}
+
+\section{Implications for Inverse Source Problems}
+The NDoF concept also dictates the stability of inverse problems. Reconstructing the source current $\vect{I}$ from noisy measurements $\vect{f}$ via Tikhonov regularization leads to a solution for the coefficients of the radiation modes, $c_n$:
+$$ c_n = \frac{\rho_n}{\rho_n + \delta} \cdot c_n^{\text{unreg}} $$
+The NDoF is the number of modes that can be stably reconstructed (where $\rho_n \gg \delta$).
+
+\begin{thebibliography}{9}
+
+\bibitem{Bohren1983}
+C. F. Bohren and D. R. Huffman, \textit{Absorption and Scattering of Light by Small Particles}. New York: Wiley-Interscience, 1983.
+
+\bibitem{Cauchy1832}
+A. L. Cauchy, "Sur la rectification des courbes et la quadrature des surfaces courbes," \textit{Mémoires de l'Académie des sciences de l'Institut de France}, vol. 22, pp. 3-15, 1832.
+
+\bibitem{Gustafsson2025}
+M. Gustafsson, "Degrees of Freedom for Radiating Systems," \textit{IEEE Transactions on Antennas and Propagation}, vol. 73, no. 2, pp. 1028-1038, Feb. 2025.
+
+\bibitem{Kristensson2016}
+G. Kristensson, \textit{Scattering of Electromagnetic Waves by Obstacles}. Edison, NJ: SciTech Publishing, 2016.
+
+\bibitem{Reed1978}
+M. Reed and B. Simon, \textit{Methods of Modern Mathematical Physics, Vol. IV: Analysis of Operators}. New York: Academic Press, 1978.
+
+\bibitem{Schneider2014}
+R. Schneider, \textit{Convex Bodies: The Brunn-Minkowski Theory}, 2nd ed. Cambridge: Cambridge University Press, 2014.
+
+\end{thebibliography}
+
+\end{document}

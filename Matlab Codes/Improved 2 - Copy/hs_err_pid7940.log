@@ -1,0 +1,262 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1048576 bytes for AllocateHeap
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+#   JVM is running with Unscaled Compressed Oops mode in which the Java heap is
+#     placed in the first 4GB address space. The Java Heap base address is the
+#     maximum limit for the native heap growth. Please use -XX:HeapBaseMinAddress
+#     to set the Java Heap base and to place the Java Heap above 4GB virtual address.
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (memory/allocation.inline.hpp:61), pid=7940, tid=0x0000000000003ba0
+#
+# JRE version:  (8.0_202-b08) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.202-b08 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000017ca53fe000):  JavaThread "Unknown thread" [_thread_in_vm, id=15264, stack(0x0000002bc1700000,0x0000002bc5700000)]
+
+Stack: [0x0000002bc1700000,0x0000002bc5700000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x0000017ca53fe000 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=15264, stack(0x0000002bc1700000,0x0000002bc5700000)]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+heap address: 0x0000000094000000, size: 1728 MB, Compressed Oops mode: 32-bit
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 3
+Compressed class space size: 1073741824 Address: 0x0000000100000000
+
+Heap:
+ PSYoungGen      total 14336K, used 245K [0x00000000e5000000, 0x00000000e6000000, 0x0000000100000000)
+  eden space 12288K, 2% used [0x00000000e5000000,0x00000000e503d718,0x00000000e5c00000)
+  from space 2048K, 0% used [0x00000000e5e00000,0x00000000e5e00000,0x00000000e6000000)
+  to   space 2048K, 0% used [0x00000000e5c00000,0x00000000e5c00000,0x00000000e5e00000)
+ ParOldGen       total 49152K, used 0K [0x0000000094000000, 0x0000000097000000, 0x00000000e5000000)
+  object space 49152K, 0% used [0x0000000094000000,0x0000000094000000,0x0000000097000000)
+ Metaspace       used 779K, capacity 4480K, committed 4480K, reserved 1056768K
+  class space    used 76K, capacity 384K, committed 384K, reserved 1048576K
+
+Card table byte_map: [0x0000017cb48a0000,0x0000017cb4c10000] byte_map_base: 0x0000017cb4400000
+
+Marking Bits: (ParMarkBitMap*) 0x000000006e0c5ce0
+ Begin Bits: [0x0000017cb4ea0000, 0x0000017cb69a0000)
+ End Bits:   [0x0000017cb69a0000, 0x0000017cb84a0000)
+
+Polling page: 0x0000017c88860000
+
+CodeCache: size=245760Kb used=328Kb max_used=328Kb free=245431Kb
+ bounds [0x0000017ca54e0000, 0x0000017ca5750000, 0x0000017cb44e0000]
+ total_blobs=58 nmethods=0 adapters=38
+ compilation: enabled
+
+Compilation events (0 events):
+No events
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (10 events):
+Event: 0.053 loading class java/lang/Short
+Event: 0.053 loading class java/lang/Short done
+Event: 0.053 loading class java/lang/Integer
+Event: 0.054 loading class java/lang/Integer done
+Event: 0.054 loading class java/lang/Long
+Event: 0.054 loading class java/lang/Long done
+Event: 0.055 loading class java/lang/NullPointerException
+Event: 0.055 loading class java/lang/NullPointerException done
+Event: 0.055 loading class java/lang/ArithmeticException
+Event: 0.055 loading class java/lang/ArithmeticException done
+
+
+Dynamic libraries:
+0x00007ff62cf30000 - 0x00007ff62cf90000 	C:\Program Files\MATLAB\R2023b\bin\win64\MATLAB.exe
+0x00007ffc32ea0000 - 0x00007ffc33108000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ffc31ea0000 - 0x00007ffc31f69000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007ffc305e0000 - 0x00007ffc309cd000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007ffc2a250000 - 0x00007ffc2a2ee000 	C:\WINDOWS\SYSTEM32\apphelp.dll
+0x00007ffc32b90000 - 0x00007ffc32d5c000 	C:\WINDOWS\System32\USER32.dll
+0x00007ffc305b0000 - 0x00007ffc305d7000 	C:\WINDOWS\System32\win32u.dll
+0x00007ffc31740000 - 0x00007ffc3176b000 	C:\WINDOWS\System32\GDI32.dll
+0x00007ffc1a540000 - 0x00007ffc1a553000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwcapabilities.dll
+0x00007ffc309d0000 - 0x00007ffc30b07000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007ffc30230000 - 0x00007ffc3037b000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007ffc107a0000 - 0x00007ffc10865000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwcppmicroservices.dll
+0x00007ffc30500000 - 0x00007ffc305a3000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007ffbfc000000 - 0x00007ffbfc12d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfl.dll
+0x00007ffbfb910000 - 0x00007ffbfb9bb000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_feature.dll
+0x00007ffc30c40000 - 0x00007ffc30cf4000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007ffc18f70000 - 0x00007ffc18fd6000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_filesystem.dll
+0x00007ffc31600000 - 0x00007ffc316a9000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007ffc1a520000 - 0x00007ffc1a53f000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_paths.dll
+0x00007ffc31b00000 - 0x00007ffc31c9e000 	C:\WINDOWS\System32\ole32.dll
+0x00007ffc320c0000 - 0x00007ffc3280a000 	C:\WINDOWS\System32\SHELL32.dll
+0x00007ffc32ae0000 - 0x00007ffc32b86000 	C:\WINDOWS\System32\sechost.dll
+0x00007ffc31770000 - 0x00007ffc31af6000 	C:\WINDOWS\System32\combase.dll
+0x00007ffc2fff0000 - 0x00007ffc30164000 	C:\WINDOWS\System32\wintypes.dll
+0x00007ffc31fa0000 - 0x00007ffc320b8000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007ffbc7d30000 - 0x00007ffbc7edf000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwi18n.dll
+0x00007ffc19a30000 - 0x00007ffc19a4c000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmatlab_bootstrap_core.dll
+0x00007ffc1a0b0000 - 0x00007ffc1a0c9000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwrcf_framework.dll
+0x00007ffbbe110000 - 0x00007ffbbe2a2000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmst.dll
+0x00007ffbbad30000 - 0x00007ffbbb104000 	C:\Program Files\MATLAB\R2023b\bin\win64\mvm.dll
+0x00007ffb8d980000 - 0x00007ffb8de09000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwservices.dll
+0x00007ffba35e0000 - 0x00007ffba3fea000 	C:\Program Files\MATLAB\R2023b\bin\win64\mlutil.dll
+0x00007ffc329a0000 - 0x00007ffc32a14000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007ffbd1e60000 - 0x00007ffbd1f69000 	C:\Program Files\MATLAB\R2023b\bin\win64\CppMicroServices3.dll
+0x00007ffc18ba0000 - 0x00007ffc18c2d000 	C:\Program Files\MATLAB\R2023b\bin\win64\MSVCP140.dll
+0x00007ffc19a10000 - 0x00007ffc19a2b000 	C:\Program Files\MATLAB\R2023b\bin\win64\VCRUNTIME140.dll
+0x00007ffc24960000 - 0x00007ffc2496c000 	C:\Program Files\MATLAB\R2023b\bin\win64\VCRUNTIME140_1.dll
+0x00007ffc16ce0000 - 0x00007ffc16d3d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_threadpool.dll
+0x00007ffc30d70000 - 0x00007ffc30dda000 	C:\WINDOWS\System32\SHLWAPI.dll
+0x00007ffbbdac0000 - 0x00007ffbbdc4d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_log.dll
+0x00007ffc04ae0000 - 0x00007ffc04b73000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_log-vc142-mt-x64-1_78.dll
+0x00007ffc199f0000 - 0x00007ffc19a03000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_iostreams-vc142-mt-x64-1_78.dll
+0x00007ffc24770000 - 0x00007ffc24779000 	C:\Program Files\MATLAB\R2023b\bin\win64\usAsyncWorkService.dll
+0x00007ffc168b0000 - 0x00007ffc168ec000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflcodesigning_verifier.dll
+0x00007ffc30b10000 - 0x00007ffc30b94000 	C:\WINDOWS\System32\WINTRUST.dll
+0x00007ffc32820000 - 0x00007ffc32828000 	C:\WINDOWS\System32\PSAPI.DLL
+0x00007ffc2fed0000 - 0x00007ffc2fef6000 	C:\WINDOWS\SYSTEM32\bcrypt.dll
+0x00007ffc0b3d0000 - 0x00007ffc0b438000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_json.dll
+0x00007ffc2d780000 - 0x00007ffc2d9c1000 	C:\WINDOWS\SYSTEM32\dbghelp.dll
+0x00007ffc30380000 - 0x00007ffc304f7000 	C:\WINDOWS\System32\CRYPT32.dll
+0x00007ffc155f0000 - 0x00007ffc15630000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_usm.dll
+0x00007ffc31080000 - 0x00007ffc31160000 	C:\WINDOWS\System32\OLEAUT32.dll
+0x00007ffc1fe60000 - 0x00007ffc1fe68000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_fctrl_ext.dll
+0x00007ffc0af40000 - 0x00007ffc0af9d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflcrypto.dll
+0x00007ffc145f0000 - 0x00007ffc14611000 	C:\WINDOWS\SYSTEM32\MPR.dll
+0x00007ffc153b0000 - 0x00007ffc153ed000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflcryptoutils.dll
+0x00007ffc18f40000 - 0x00007ffc18f66000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_filesystem-vc142-mt-x64-1_78.dll
+0x00007ffbbcee0000 - 0x00007ffbbd0f2000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflcryptocryptopp.dll
+0x00007ffc1fe20000 - 0x00007ffc1fe29000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwresource_core.dll
+0x00007ffc1f870000 - 0x00007ffc1f87e000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_conc_common.dll
+0x00007ffc18990000 - 0x00007ffc189b5000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwcpp11compat.dll
+0x00007ffc16cc0000 - 0x00007ffc16cd8000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_thread-vc142-mt-x64-1_78.dll
+0x00007ffc2ebb0000 - 0x00007ffc2ec0e000 	C:\WINDOWS\SYSTEM32\POWRPROF.dll
+0x00007ffc162b0000 - 0x00007ffc162db000 	C:\Program Files\MATLAB\R2023b\bin\win64\libexpat.dll
+0x00007ffbbaa40000 - 0x00007ffbbad25000 	C:\Program Files\MATLAB\R2023b\bin\win64\icuin69.dll
+0x00007ffb8c360000 - 0x00007ffb8c57f000 	C:\Program Files\MATLAB\R2023b\bin\win64\icuuc69.dll
+0x00007ffb8be20000 - 0x00007ffb8bfd6000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_matlabdata.dll
+0x00007ffbf6080000 - 0x00007ffbf6164000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_matlabdata_standalone.dll
+0x00007ffb858b0000 - 0x00007ffb85d90000 	C:\Program Files\MATLAB\R2023b\bin\win64\settingscore.dll
+0x00007ffc15310000 - 0x00007ffc1533f000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwthreadpool.dll
+0x00007ffc04720000 - 0x00007ffc0478b000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmcom.dll
+0x00007ffb8bfe0000 - 0x00007ffb8c351000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwms.dll
+0x00007ffc10900000 - 0x00007ffc1092d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwagentspfendpointregistry.dll
+0x00007ffc16950000 - 0x00007ffc16966000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_tracelogger.dll
+0x00007ffc1a510000 - 0x00007ffc1a51e000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_chrono-vc142-mt-x64-1_78.dll
+0x00007ffc10760000 - 0x00007ffc10799000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_serialization-vc142-mt-x64-1_78.dll
+0x00007ffbf3c10000 - 0x00007ffbf3cbd000 	C:\Program Files\MATLAB\R2023b\bin\win64\libut.dll
+0x00007ffb85530000 - 0x00007ffb858a4000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmx.dll
+0x00007ffb80180000 - 0x00007ffb80aa2000 	C:\Program Files\MATLAB\R2023b\bin\win64\builtin.dll
+0x00007ffc19f90000 - 0x00007ffc19f9e000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmatlabdata_boost_serialization.dll
+0x00007ffbf2c40000 - 0x00007ffbf2ca4000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwcwf_interface.dll
+0x00007ffc16860000 - 0x00007ffc16875000 	C:\Program Files\MATLAB\R2023b\bin\win64\language_execution_interfaces.dll
+0x00007ffbbb5a0000 - 0x00007ffbbb6da000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflstorageprovider.dll
+0x00007ffc155e0000 - 0x00007ffc155ef000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflstorageutility.dll
+0x00007ffb8bc60000 - 0x00007ffb8be1e000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflstoragevfs.dll
+0x00007ffbf89a0000 - 0x00007ffbf8a06000 	C:\Program Files\MATLAB\R2023b\bin\win64\tbb.dll
+0x00007ffc0ae30000 - 0x00007ffc0ae81000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwlivecode.dll
+0x00007ffc153a0000 - 0x00007ffc153a8000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmatlabstoragesystem.dll
+0x00007ffc0f860000 - 0x00007ffc0f8a6000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwrelease_info.dll
+0x00007ffbd2e90000 - 0x00007ffbd2f11000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwsearch_path_utilities.dll
+0x00007ffbeca10000 - 0x00007ffbeca71000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwsettings_in_matlab.dll
+0x00007ffbd2d10000 - 0x00007ffbd2d96000 	C:\Program Files\MATLAB\R2023b\bin\win64\mcos.dll
+0x00007ffbdd850000 - 0x00007ffbdd8c1000 	C:\Program Files\MATLAB\R2023b\bin\win64\opccore.dll
+0x00007ffc0e3d0000 - 0x00007ffc0e3f6000 	C:\Program Files\MATLAB\R2023b\bin\win64\opczippackage.dll
+0x00007ffb850d0000 - 0x00007ffb85298000 	C:\Program Files\MATLAB\R2023b\bin\win64\opcmodel.dll
+0x00007ffc0e290000 - 0x00007ffc0e2c6000 	C:\Program Files\MATLAB\R2023b\bin\win64\string_matrix.dll
+0x00007ffc2f3e0000 - 0x00007ffc2f44a000 	C:\WINDOWS\SYSTEM32\MSWSOCK.dll
+0x00007ffc15e20000 - 0x00007ffc15e3b000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwstartupplugin.dll
+0x00007ffc19840000 - 0x00007ffc19847000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwnativedisplay.dll
+0x00007ffbd5e20000 - 0x00007ffbd5edb000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwstartup_plugin_initializer.dll
+0x00007ffc16df0000 - 0x00007ffc16dfe000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmvmtransportapi.dll
+0x00007ffbbd980000 - 0x00007ffbbdac0000 	C:\Program Files\MATLAB\R2023b\bin\win64\matlab_toolbox_events_base.dll
+0x00007ffb852a0000 - 0x00007ffb85523000 	C:\Program Files\MATLAB\R2023b\bin\win64\execution_events.dll
+0x00007ffbd0bc0000 - 0x00007ffbd0c61000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflcertificates.dll
+0x00007ffc15300000 - 0x00007ffc1530d000 	C:\Program Files\MATLAB\R2023b\bin\win64\mwboost_atomic-vc142-mt-x64-1_78.dll
+0x000000006e650000 - 0x000000006e66a000 	C:\Program Files\MATLAB\R2023b\bin\win64\zlib1.dll
+0x00007ffc2a300000 - 0x00007ffc2a30d000 	C:\WINDOWS\SYSTEM32\Secur32.dll
+0x00007ffc15150000 - 0x00007ffc15157000 	C:\Program Files\MATLAB\R2023b\bin\win64\MSVCP140_CODECVT_IDS.dll
+0x00007ffc0afc0000 - 0x00007ffc0afe2000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwdtoa.dll
+0x00007ffb7ff70000 - 0x00007ffb8017f000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_matlabdata_json.dll
+0x00007ffb8d820000 - 0x00007ffb8d97d000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwagentinterprocessmutex.dll
+0x00007ffbde360000 - 0x00007ffbde38d000 	C:\Program Files\MATLAB\R2023b\bin\win64\opcmwpackaging.dll
+0x00007ffbd09b0000 - 0x00007ffbd0a83000 	C:\Program Files\MATLAB\R2023b\bin\win64\opcmwservices.dll
+0x00007ffc0a930000 - 0x00007ffc0a954000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwfoundation_memmgr.dll
+0x00007ffc0e620000 - 0x00007ffc0e63a000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwagentspfsharedmemory.dll
+0x00007ffc15140000 - 0x00007ffc1514e000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflstrings.dll
+0x00007ffc0a8c0000 - 0x00007ffc0a8f7000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmfl_permute.dll
+0x00007ffc0fec0000 - 0x00007ffc0feda000 	C:\WINDOWS\SYSTEM32\NETAPI32.dll
+0x00007ffc0b3b0000 - 0x00007ffc0b3c3000 	C:\Program Files\MATLAB\R2023b\bin\win64\icuio69.dll
+0x00007ffc10cf0000 - 0x00007ffc10d00000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwload_context.dll
+0x00007ffc0af00000 - 0x00007ffc0af14000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwindexingapimethods.dll
+0x00007ffbf47d0000 - 0x00007ffbf482f000 	C:\Program Files\MATLAB\R2023b\bin\win64\tbbmalloc.dll
+0x00007ffb7fcf0000 - 0x00007ffb7ff6a000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflnetwork.dll
+0x00007ffc0ab70000 - 0x00007ffc0ab8e000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwflstorageevents.dll
+0x00007ffc07cf0000 - 0x00007ffc07d0a000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwstoragemicroservicestoragesystem.dll
+0x00007ffbd05a0000 - 0x00007ffbd062a000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwstoragefilefolderobserver.dll
+0x00007ffb7d620000 - 0x00007ffb7d93a000 	C:\Program Files\MATLAB\R2023b\bin\win64\xerces-c_3_2.dll
+0x00007ffbcbc70000 - 0x00007ffbcbd09000 	C:\Program Files\MATLAB\R2023b\bin\win64\libmwmodule_descriptor_interfaces.dll
+
+VM Arguments:
+jvm_args: -Xms64m -XX:NewRatio=3 -Xmx1728m -XX:MaxDirectMemorySize=2147400000 -Dsun.java2d.noddraw=true -Dsun.awt.nopixfmt=true -Xshare:off -Djava.ext.dirs=C:\Program Files\MATLAB\R2023b\sys\java\jre\win64\jre\lib\ext -Djogamp.gluegen.UseTempJarCache=false -Djogl.disable.opengles=1 -Djogl.windows.cpu_affinity_mode=0 -Xrs -Djava.library.path=C:\Program Files\MATLAB\R2023b\bin\win64;C:\Program Files\MATLAB\R2023b\sys\jxbrowser\win64\lib vfprintf -XX:ErrorFile=D:\Temp\hs_error_pid7940.log abort -Djava.awt.headless=true -Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8 -XX:ParallelGCThreads=6 
+java_command: <unknown>
+java_class_path (initial): C:\Program Files\MATLAB\R2023b\java\patch;C:\Program Files\MATLAB\R2023b\java\jar\jmi.jar;C:\Program Files\MATLAB\R2023b\java\jar\util.jar;C:\Program Files\MATLAB\R2023b\java\jar\mvm.jar;C:\Program Files\MATLAB\R2023b\java\jar\services.jar;C:\Program Files\MATLAB\R2023b\java\jarext\commons-io.jar;C:\Program Files\MATLAB\R2023b\java\jar\cfbutils.jar;C:\Program Files\MATLAB\R2023b\java\jar\capabilities.jar;C:\Program Files\MATLAB\R2023b\java\jar\mlwidgets.jar;C:\Program Files\MATLAB\R2023b\java\jar\html.jar;C:\Program Files\MATLAB\R2023b\java\jar\net.jar;C:\Program Files\MATLAB\R2023b\java\jarext\log4j-core-2.17.1.jar;C:\Program Files\MATLAB\R2023b\java\jarext\log4j-api-2.17.1.jar;C:\Program Files\MATLAB\R2023b\java\jarext\log4j-1.2-api-2.17.1.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jackson\jackson-core.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jackson\jackson-databind.jar;C:\Program Files\MATLAB\R2023b\java\jar\mwswing.jar;C:\Program Files\MATLAB\R2023b\java\jar\common.jar;C:\Program Files\MATLAB\R2023b\java\jarext\google-collect.jar;C:\Program Files\MATLAB\R2023b\java\jarext\commons-lang.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-common.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-dock.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-action.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-components.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-grids.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-dialogs.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-shortcut.jar;C:\Program Files\MATLAB\R2023b\java\jarext\jide\jide-charts.jar;C:\Program Files\MATLAB\R2023b\java\jar\toolstrip.jar;C:\Program Files\MATLAB\R2023b\java\jar\mlservices.jar;C:\Program Files\MATLAB\R2023b\java\jar\widgets.jar;C:\Program Files\MATLAB\R2023b\java\jar\mde.jar;C:\Program Files\MATLAB\R2023b\java\jar\explorer.jar;C:\Program Files\MATLAB\R2023b\java\jar\desktop.jar;C:\Program Files\MAT
+Launcher Type: generic
+
+Environment Variables:
+PATH=C:\Program Files (x86)\Common Files\Intel\Shared Files\fortran\bin\Intel64;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64_win\mpirt;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64_win\compiler;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\WireSock VPN Client\bin\;C:\Program Files\MATLAB\R2023b\runtime\win64;C:\Program Files\MATLAB\R2023b\bin;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;C:\Program Files\Git\cmd;C:\Users\LENOVO\anaconda3\envs\QC;C:\Users\LENOVO\anaconda3\envs\QC\Library\mingw-w64\bin;C:\Users\LENOVO\anaconda3\envs\QC\Library\usr\bin;C:\Users\LENOVO\anaconda3\envs\QC\Library\bin;C:\Users\LENOVO\anaconda3\envs\QC\Scripts;C:\Users\LENOVO\anaconda3\envs\QC\bin;C:\Users\LENOVO\anaconda3\condabin;C:\Users\
+USERNAME=LENOVO
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10.0 , 64 bit Build 26100 (10.0.26100.4484)
+
+CPU:total 20 (initial active 20) (10 cores per cpu, 2 threads per core) family 6 model 183 stepping 1, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, 3dnowpref, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2, adx
+
+Memory: 4k page, physical 16478072k(2482288k free), swap 23146656k(6732k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (25.202-b08) for windows-amd64 JRE (1.8.0_202-b08), built on Dec 15 2018 19:54:30 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Tue Jul 29 02:12:04 2025
+timezone: Iran Standard Time
+elapsed time: 0 seconds (0d 0h 0m 0s)
+

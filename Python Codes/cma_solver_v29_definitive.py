@@ -1,0 +1,304 @@
+# cma_solver_v29_definitive.py
+import numpy as np
+from scipy.linalg import eigh
+from scipy.special import spherical_jn
+from scipy.integrate import quad, dblquad
+import warnings
+
+class CMAError(Exception):
+    """Custom exception for solver-specific errors."""
+    pass
+
+class CmaSolverV29:
+    """
+    A definitive, research-grade solver for Characteristic Mode Analysis.
+
+    Version: 29.0 (Definitive & Validated Implementation)
+    - Physical Feed Model: Implements a multi-segment triangular voltage gap,
+      replacing the idealized delta-gap feed for more realistic impedance results.
+    - Robust Duffy Threshold: The trigger for using Duffy quadrature is now based
+      on the local element sizes, not a global average.
+    - Configurable Tolerances: Near- and far-field quadrature tolerances can be
+      set independently for a better balance of accuracy and performance.
+    - Smooth Bessel Blending: Implements a tanh blending function to smoothly
+      transition between scipy's Bessel functions and the asymptotic form.
+    - Configurable Mode Filtering: The power threshold for filtering spurious
+      modes is now user-configurable.
+    - Full 2D Far-Field Integral: The power conservation check uses a proper
+      2D integral over both theta and phi.
+    """
+    def __init__(self, config):
+        self.cfg = CmaSolverV29.validate_config(config)
+        self.c0 = 299792458.0
+        self.eta0 = 119.9169832 * np.pi
+        self.solver_version = "29.0"
+
+    def run(self):
+        f = self.cfg['Execution']['Frequency']
+        if self.cfg['Execution']['Verbose']: print(f"Analyzing at {f/1e6:.2f} MHz with v{self.solver_version}...")
+
+        omega = 2 * np.pi * f
+        k = omega / self.c0
+
+        Z, dZ_dk = self._assemble_matrices_uniform_singular(k)
+        R = self._reconstruct_R_via_swe(k)
+        X = np.imag(Z)
+        dX_domega = np.imag(dZ_dk) / self.c0
+
+        lambda_n, J_n, filtered_indices = self._solve_and_filter_modes(X, R)
+        Q_n = self._calculate_q_factors(omega, R, dX_domega, lambda_n, J_n)
+        Z_in = self._calculate_input_impedance(Z)
+        
+        P_rad_R = 0.5 * np.diag(np.real(J_n.conj().T @ R @ J_n))
+        P_rad_FF = self.calculate_far_field_power_2d(k, J_n)
+
+        return {
+            'frequency': f, 'wavenumber': k, 'lambda_n': lambda_n,
+            'J_n': J_n, 'InputImpedance': Z_in, 'Q_n': Q_n, 'config': self.cfg,
+            'R': R, 'X': X, 'P_rad_R': P_rad_R, 'P_rad_FF': P_rad_FF,
+            'filtered_indices': filtered_indices
+        }
+
+    def _assemble_matrices_uniform_singular(self, k):
+        zn, z_centers, dL = self._create_geometry(self.cfg['Dipole']['Length'], self.cfg['Mesh']['Segments'])
+        # The number of basis functions (rooftops) is Segments - 1
+        N = self.cfg['Mesh']['Segments'] - 1
+        a = self.cfg['Dipole']['Radius']
+        
+        Z = np.zeros((N, N), dtype=np.complex128)
+        dZ_dk = np.zeros((N, N), dtype=np.complex128)
+
+        for m in range(N):
+            for n in range(m, N):
+                dist_threshold = self.cfg['Quadrature']['DuffyThresholdFactor'] * min(dL[m], dL[n])
+                if m == n:
+                    Z[m, n], dZ_dk[m, n] = self._calculate_self_term_full_analytical(m, zn, dL, k, a)
+                else:
+                    z_m_support = (zn[m], zn[m+2]); z_n_support = (zn[n], zn[n+2])
+                    z_kernel = lambda z, zp: self._rooftop(z, zn[m+1], dL[m], dL[m+1]) * self._integrand_kernel(z, zp, k, a) * self._rooftop(zp, zn[n+1], dL[n], dL[n+1])
+                    dzdk_kernel = lambda z, zp: self._rooftop(z, zn[m+1], dL[m], dL[m+1]) * self._integrand_kernel_dk(z, zp, k, a) * self._rooftop(zp, zn[n+1], dL[n], dL[n+1])
+                    
+                    min_dist = abs(z_centers[m] - z_centers[n]) - (dL[m] + dL[n])/2
+                    if min_dist < dist_threshold:
+                        eps = self.cfg['Quadrature']['EpsRelNear']
+                        Z[m, n] = self._duffy_quadrature(z_kernel, z_m_support, z_n_support, eps)
+                        dZ_dk[m, n] = self._duffy_quadrature(dzdk_kernel, z_m_support, z_n_support, eps)
+                    else:
+                        eps = self.cfg['Quadrature']['EpsRelFar']
+                        Z[m, n] = dblquad(z_kernel, z_n_support[0], z_n_support[1], z_m_support[0], z_m_support[1], epsrel=eps)[0]
+                        dZ_dk[m, n] = dblquad(dzdk_kernel, z_n_support[0], z_n_support[1], z_m_support[0], z_m_support[1], epsrel=eps)[0]
+        
+        Z = Z + np.triu(Z, 1).T.conj()
+        dZ_dk = dZ_dk + np.triu(dZ_dk, 1).T.conj()
+        return Z, dZ_dk
+
+    def _duffy_quadrature(self, kernel_func, z_range, zp_range, eps):
+        z_min, z_max = z_range; zp_min, zp_max = zp_range
+        def integrand1(u, v):
+            z = z_min + u * (z_max - z_min); zp = zp_min + u * v * (zp_max - zp_min)
+            jacobian = u * (z_max - z_min) * (zp_max - zp_min)
+            return kernel_func(z, zp) * jacobian
+        def integrand2(u, v):
+            z = z_min + u * v * (z_max - z_min); zp = zp_min + v * (zp_max - zp_min)
+            jacobian = v * (z_max - z_min) * (zp_max - zp_min)
+            return kernel_func(z, zp) * jacobian
+        res1 = dblquad(integrand1, 0, 1, 0, 1, epsrel=eps)[0]
+        res2 = dblquad(integrand2, 0, 1, 0, 1, epsrel=eps)[0]
+        return res1 + res2
+
+    def _calculate_self_term_full_analytical(self, m, zn, dL, k, a):
+        eps = self.cfg['Quadrature']['EpsRelNear']
+        const = 1 / (4j * np.pi * k * self.eta0)
+        l1, l2 = dL[m], dL[m+1]
+        def I_sing(L, a_val):
+            if L < 1e-12: return 0
+            return (L/2)*np.log((L+np.sqrt(L**2+a_val**2))/a_val) - (1/2)*(np.sqrt(L**2+a_val**2)-a_val)
+        z_sing_integral_G = 2 * (I_sing(l1, a) / l1**2 + I_sing(l2, a) / l2**2)
+        z_sing_integral = const * z_sing_integral_G
+        dzdk_sing_integral = -z_sing_integral / k
+        z_m_support = (zn[m], zn[m+2])
+        def regular_kernel(z, zp):
+            R = np.sqrt((z - zp)**2 + a**2)
+            g_regular = (np.exp(-1j * k * R) - 1) / R if R > 1e-12 else -1j*k
+            return self._rooftop(z, zn[m+1], dL[m], dL[m+1]) * (g_regular + self._integrand_kernel(z, zp, k, a, singular_part_only=False)) * self._rooftop(zp, zn[m+1], dL[m], dL[m+1])
+        z_reg_integral = dblquad(regular_kernel, z_m_support[0], z_m_support[1], z_m_support[0], z_m_support[1], epsrel=eps)[0]
+        def regular_kernel_dk(z, zp):
+             return self._rooftop(z, zn[m+1], dL[m], dL[m+1]) * self._integrand_kernel_dk(z, zp, k, a) * self._rooftop(zp, zn[m+1], dL[m], dL[m+1])
+        dzdk_reg_integral = dblquad(regular_kernel_dk, z_m_support[0], z_m_support[1], z_m_support[0], z_m_support[1], epsrel=eps)[0]
+        return z_reg_integral + z_sing_integral, dzdk_reg_integral + dzdk_sing_integral
+
+    def _reconstruct_R_via_swe(self, k):
+        zn, _, dL = self._create_geometry(self.cfg['Dipole']['Length'], self.cfg['Mesh']['Segments'])
+        N_basis = self.cfg['Mesh']['Segments'] - 1
+        n_max_limit = int(k * self.cfg['Dipole']['Length']) + 30; conv_tol = 1e-5
+        R_swe = np.zeros((N_basis, N_basis), dtype=np.complex128); total_power_ref = 0.0
+        I_ref = np.sin(np.pi * (zn[1:-1] + self.cfg['Dipole']['Length']/2) / self.cfg['Dipole']['Length'])
+        for n in range(1, n_max_limit + 1):
+            F_n = np.zeros(N_basis, dtype=np.complex128)
+            for p in range(N_basis):
+                integrand = lambda z: self._rooftop(z, zn[p+1], dL[p], dL[p+1]) * self._stable_bessel_integrand(n, k, z)
+                val, _ = quad(integrand, zn[p], zn[p+2], epsrel=self.cfg['Quadrature']['EpsRelNear'], limit=200)
+                F_n[p] = val
+            power_n_factor = (self.eta0 / (2 * np.pi * n * (n+1)))
+            R_n_contribution = power_n_factor * np.outer(F_n.conj(), F_n)
+            R_swe += R_n_contribution
+            power_n_ref = 0.5 * np.real(I_ref.conj().T @ R_n_contribution @ I_ref)
+            total_power_ref += power_n_ref
+            if total_power_ref > 1e-12 and np.abs(power_n_ref / total_power_ref) < conv_tol: break
+        
+        max_imag = np.max(np.abs(np.imag(R_swe))); max_real = np.max(np.abs(np.real(R_swe)))
+        if self.cfg['Numerics']['EnforceRHermiticity'] and max_real > 0 and max_imag / max_real > 1e-8:
+            warnings.warn(f"R_swe Hermiticity enforced. Max rel imag: {max_imag/max_real:.2e}", UserWarning)
+            R_swe = (R_swe + R_swe.conj().T) / 2.0
+        return np.real(R_swe)
+
+    def _solve_and_filter_modes(self, X, R):
+        vals, V = eigh(X, R)
+        idx = np.argsort(np.abs(vals))
+        N_modes = min(self.cfg['Execution']['NumModes'], len(vals))
+        vals, V = vals[idx][:N_modes], V[:, idx][:, :N_modes]
+        U = np.zeros_like(V); valid_indices = []; filtered_indices = []
+        power_rad_all = 0.5 * np.real(np.diag(V.conj().T @ R @ V))
+        power_dominant = np.max(power_rad_all) if len(power_rad_all) > 0 else 0.0
+        power_threshold = self.cfg['Execution']['PowerFilterThreshold'] * power_dominant if power_dominant > 1e-12 else 1e-12
+        for i in range(N_modes):
+            if power_rad_all[i] < power_threshold:
+                filtered_indices.append(idx[i]); continue
+            u_i = V[:, i].copy()
+            for j in range(len(valid_indices)):
+                u_j = U[:, valid_indices[j]]; dot_product = u_j.conj().T @ R @ u_i; u_i -= dot_product * u_j
+            norm_factor = np.sqrt(np.abs(u_i.conj().T @ R @ u_i))
+            if norm_factor > 1e-9:
+                U[:, i] = u_i / norm_factor; valid_indices.append(i)
+            else: filtered_indices.append(idx[i])
+        return vals[valid_indices], U[:, valid_indices], filtered_indices
+
+    def calculate_far_field_power_2d(self, k, J_n):
+        n_theta = 91; n_phi = 181
+        theta_nodes, theta_weights = np.polynomial.legendre.leggauss(n_theta)
+        phi_nodes, phi_weights = np.polynomial.legendre.leggauss(n_phi)
+        theta_rad = np.arccos(theta_nodes); phi_rad = np.pi * (phi_nodes + 1)
+        E_theta_patterns = self.calculate_radiation_pattern(k, J_n, theta_rad, phi_rad)
+        power_per_mode = np.zeros(J_n.shape[1])
+        for i in range(J_n.shape[1]):
+            E2 = np.abs(E_theta_patterns[i, :, :])**2
+            integral_phi = np.sum(E2 * phi_weights, axis=1) * np.pi
+            integral_theta = np.sum(integral_phi * theta_weights)
+            power_per_mode[i] = (0.5 / self.eta0) * integral_theta
+        return power_per_mode
+
+    def calculate_radiation_pattern(self, k, J_n, theta_rad, phi_rad):
+        zn, _, dL = self._create_geometry(self.cfg['Dipole']['Length'], self.cfg['Mesh']['Segments'])
+        TH, PHI = np.meshgrid(theta_rad, phi_rad, indexing='ij')
+        k_vec_z = np.cos(TH)
+        AF = np.zeros((J_n.shape[1], len(theta_rad), len(phi_rad)), dtype=np.complex128)
+        z_vals = np.linspace(-self.cfg['Dipole']['Length']/2, self.cfg['Dipole']['Length']/2, 200)
+        phase_term = np.exp(-1j * k * z_vals[:, np.newaxis, np.newaxis] * k_vec_z)
+        for i in range(J_n.shape[1]):
+            I_coeffs = J_n[:, i]
+            current_dist = np.zeros_like(z_vals, dtype=np.complex128)
+            for p in range(len(I_coeffs)):
+                current_dist += I_coeffs[p] * self._rooftop(z_vals, zn[p+1], dL[p], dL[p+1])
+            integrand_vals = current_dist[:, np.newaxis, np.newaxis] * phase_term
+            AF[i, :, :] = np.trapz(integrand_vals, z_vals, axis=0)
+        return (-1j * k * self.eta0 / (4 * np.pi)) * AF * np.sin(TH)
+
+    def _calculate_q_factors(self, omega, R, dX_domega, lambda_n, J_n):
+        Q_n = np.full(J_n.shape[1], np.nan)
+        for i in range(J_n.shape[1]):
+            if np.abs(lambda_n[i]) > self.cfg['Numerics']['LambdaCutoff']: continue
+            I_n = J_n[:, i]; P_rad_n = 0.5 * np.real(I_n.conj().T @ R @ I_n)
+            stored_energy_derivative = 0.25 * np.real(I_n.conj().T @ dX_domega @ I_n)
+            if P_rad_n > 1e-15 and np.abs(stored_energy_derivative) > 1e-24:
+                Q_n[i] = np.abs(2 * omega * stored_energy_derivative) / P_rad_n
+        return Q_n
+
+    def _calculate_input_impedance(self, Z):
+        zn, z_centers, _ = self._create_geometry(self.cfg['Dipole']['Length'], self.cfg['Mesh']['Segments'])
+        N_basis = self.cfg['Mesh']['Segments'] - 1
+        V_impressed = np.zeros(N_basis, dtype=np.complex128)
+        gap_width = self.cfg['Feed']['GapWidth']
+        
+        # Apply a triangular voltage distribution over the feed gap
+        for i in range(N_basis):
+            # Center of the i-th basis function is at node zn[i+1]
+            dist_from_center = np.abs(zn[i+1])
+            if dist_from_center < gap_width / 2.0:
+                V_impressed[i] = 1.0 - 2.0 * dist_from_center / gap_width
+        
+        if np.sum(np.abs(V_impressed)) < 1e-9:
+            warnings.warn("No basis functions found within the feed gap.", UserWarning)
+            feed_idx = (N_basis) // 2
+            V_impressed[feed_idx] = 1.0
+
+        try: I_total = np.linalg.solve(Z, V_impressed)
+        except np.linalg.LinAlgError: return np.nan + 1j*np.nan
+        
+        # Input current is the sum of currents weighted by the voltage distribution
+        I_in = np.sum(I_total * V_impressed)
+        return 1.0 / (I_in + 1e-15)
+
+    @staticmethod
+    def _stable_bessel_integrand(n, k, z):
+        kz = k * z
+        # Blending between asymptotic and scipy forms
+        blend_center = n / 2.0; blend_width = n / 10.0
+        weight = 0.5 * (1.0 - np.tanh((kz - blend_center) / blend_width))
+        if weight > 0.99: # Fully asymptotic
+            if kz < 1e-9: return 0.0
+            log_val = n * np.log(kz) - np.sum(np.log(np.arange(1, 2*n+2, 2)))
+            jn_approx = np.exp(log_val)
+            jn_deriv_approx = n * jn_approx / kz
+            return (n * (n+1) / kz) * jn_approx + jn_deriv_approx
+        
+        scipy_val = (n * (n+1) / (kz + 1e-12)) * spherical_jn(n, kz) + spherical_jn(n, kz, derivative=True)
+        if weight < 0.01: return scipy_val
+        
+        if kz < 1e-9: asymp_val = 0.0
+        else:
+            log_val = n * np.log(kz) - np.sum(np.log(np.arange(1, 2*n+2, 2)))
+            jn_approx = np.exp(log_val)
+            jn_deriv_approx = n * jn_approx / kz
+            asymp_val = (n * (n+1) / kz) * jn_approx + jn_deriv_approx
+        
+        return weight * asymp_val + (1 - weight) * scipy_val
+    
+    # --- Other utility methods ---
+    @staticmethod
+    def _integrand_kernel(z, zp, k, a, singular_part_only=True):
+        R = np.sqrt((z - zp)**2 + a**2);
+        if R < 1e-12: return 0
+        g = np.exp(-1j * k * R) / R
+        if singular_part_only: return g
+        g_deriv_term = (1j*k*R + 1) * g / R**2
+        return (g + g_deriv_term / k**2)
+    @staticmethod
+    def _integrand_kernel_dk(z, zp, k, a):
+        R = np.sqrt((z - zp)**2 + a**2);
+        if R < 1e-12: return 0
+        exp_term = np.exp(-1j * k * R)
+        term1 = -1j * exp_term
+        term2 = (-2/(k**3)) * (1 + 1j*k*R) * exp_term / R**3 + (-1j*R/k**2) * exp_term / R**3 + (1/k**2) * (1 + 1j*k*R) * (-1j*R) * exp_term / R**3
+        return term1 + term2
+    @staticmethod
+    def _rooftop(z, c, d1, d2): return np.piecewise(z, [(z >= c-d1) & (z < c), (z >= c) & (z <= c+d2)], [lambda x:(x-(c-d1))/d1, lambda x:((c+d2)-x)/d2, 0.0])
+    @staticmethod
+    def _create_geometry(L, N): zn=np.linspace(-L/2,L/2,N+1); return zn, (zn[1:]+zn[:-1])/2, np.diff(zn)
+    @staticmethod
+    def validate_config(cfg):
+        d = {
+            'Dipole': {'Length': 0.5, 'Radius': 0.001},
+            'Mesh': {'Segments': 51},
+            'Feed': {'GapWidth': 0.005},
+            'Execution': {'Frequency': 300e6, 'NumModes': 10, 'Verbose': False, 'PowerFilterThreshold': 1e-7},
+            'Quadrature': {'DuffyThresholdFactor': 2.5, 'EpsRelNear': 1e-9, 'EpsRelFar': 1e-7},
+            'Numerics': {'EnforceRHermiticity': True, 'LambdaCutoff': 100}
+        }
+        def merge(base, overlay):
+            for k, v in overlay.items():
+                if isinstance(v, dict) and k in base: base[k] = merge(base.get(k, {}), v)
+                else: base[k] = v
+            return base
+        final_cfg = merge(d, cfg or {})
+        if final_cfg['Mesh']['Segments'] % 2 != 1: raise ValueError("Segments must be odd.")
+        return final_cfg
