@@ -243,7 +243,7 @@ Let's use a sample dataset `sample_data.csv` included in the repository.
 
 The efficacy of the TCM-DoF framework is best demonstrated through its application to complex datasets. The following figure, drawn from the `Final Project Report.pdf`, highlights the key capabilities and advantages of the approach.
 
-![The Grand Unification: DoF vs. Electrical Length](https://storage.googleapis.com/generative-ai-pro-is-external-images/user-gen-images/Fig_Project_Unification.png)
+![The Grand Unification: DoF vs. Electrical Length](https://github.com/RezaAramjou/TCM-DoF-Unification/blob/main/Report%20(v2)/Fig_Project_Unification.png)
 
 **Figure 1 Caption:** A plot illustrating the unification of internal current modes and external field complexity. The x-axis represents the Dipole Length (L/λ), while the y-axis shows the Number of Degrees of Freedom (NDoF). The plot demonstrates a direct correspondence between the DoF calculated from Characteristic Modes and the DoF from Far-Field Complexity, validating the core thesis of the unification framework.
 
@@ -259,7 +259,7 @@ If you use this framework or its associated software in your research, please ci
 @misc{Aramjou_TCM_DoF_Unification_2024,
   author = {Aramjou, Reza},
   title = {TCM-DoF Unification: A Unified Framework for Topological Cluster-based Modeling and Degrees of Freedom},
-  year = {2024},
+  year = {2025},
   publisher = {GitHub},
   journal = {GitHub repository},
   howpublished = {\url{[https://github.com/RezaAramjou/TCM-DoF-Unification](https://github.com/RezaAramjou/TCM-DoF-Unification)}},
